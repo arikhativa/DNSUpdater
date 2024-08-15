@@ -1,21 +1,24 @@
-BINARY_NAME=dns-updater
+export BINARY_NAME=dns-updater
 BUILD_DIR=bin
-
+DOCKER_USERNAME=arikhativa
 
 all: build
 
-
 build:
-	@echo "Building the project..."
-	@go build -o $(BUILD_DIR)/$(BINARY_NAME) cmd/dns-updater/main.go
+	go build -o $(BUILD_DIR)/$(BINARY_NAME) src/main.go
 
-test:
-	@echo "Running tests..."
-	@go test ./...
+test: build
+	./$(BUILD_DIR)/$(BINARY_NAME)
 
-clean:
-	@echo "Cleaning up..."
-	@rm -rf $(BUILD_DIR)/$(BINARY_NAME)
+docker-build:
+	docker build -t $(BINARY_NAME) .
 
+docker-run:
+	docker run -d -it --name $(BINARY_NAME) $(BINARY_NAME)
 
-.PHONY: all build test clean 
+docker-stop:
+	docker stop  $(BINARY_NAME) 
+
+docker-push:
+	docker tag $(BINARY_NAME) $(DOCKER_USERNAME)/$(BINARY_NAME)
+	docker push $(DOCKER_USERNAME)/$(BINARY_NAME)
